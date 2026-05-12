@@ -23,3 +23,13 @@ export function formatSessionDate(value: string): string {
 export function sanitizeFileName(value: string): string {
   return (value.trim() || 'gps-track').replace(/[\\/:*?"<>|]/g, '_');
 }
+
+export function parseIntervalSeconds(value: string): number | null {
+  const normalized = value.trim();
+  if (!/^\d+$/.test(normalized)) {
+    return null;
+  }
+
+  const parsed = Number(normalized);
+  return parsed > 0 ? parsed : null;
+}

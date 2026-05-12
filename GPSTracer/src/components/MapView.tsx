@@ -8,9 +8,10 @@ import { MAP_HTML } from './mapHtml';
 type Props = {
   points: RecordPoint[];
   liveLocation: LiveLocation | null;
+  isTracking: boolean;
 };
 
-export function MapView({ points, liveLocation }: Props) {
+export function MapView({ points, liveLocation, isTracking }: Props) {
   const ref = useRef<WebViewType>(null);
 
   useEffect(() => {
@@ -26,8 +27,8 @@ export function MapView({ points, liveLocation }: Props) {
 
   useEffect(() => {
     const payload = liveLocation ? JSON.stringify(liveLocation) : 'null';
-    ref.current?.injectJavaScript(`window.GPSTracer && window.GPSTracer.setLiveLocation(${payload}); true;`);
-  }, [liveLocation]);
+    ref.current?.injectJavaScript(`window.GPSTracer && window.GPSTracer.setLiveLocation(${payload}, ${isTracking}); true;`);
+  }, [isTracking, liveLocation]);
 
   return (
     <View style={styles.wrap}>

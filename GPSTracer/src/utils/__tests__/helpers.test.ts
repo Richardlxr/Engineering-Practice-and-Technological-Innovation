@@ -1,4 +1,4 @@
-import { formatAltitude, formatCoordinate, makePointName } from '../helpers';
+import { formatAltitude, formatCoordinate, makePointName, parseIntervalSeconds } from '../helpers';
 
 describe('tracking helpers', () => {
   it('creates zero-padded point names with the session prefix', () => {
@@ -16,5 +16,15 @@ describe('tracking helpers', () => {
     expect(formatCoordinate(116.4074)).toBe('116.407400');
     expect(formatAltitude(52.234)).toBe('52.2');
     expect(formatAltitude(null)).toBe('');
+  });
+
+  it('accepts positive whole-number custom intervals only', () => {
+    expect(parseIntervalSeconds('1')).toBe(1);
+    expect(parseIntervalSeconds('45')).toBe(45);
+    expect(parseIntervalSeconds(' 90 ')).toBe(90);
+    expect(parseIntervalSeconds('0')).toBeNull();
+    expect(parseIntervalSeconds('-5')).toBeNull();
+    expect(parseIntervalSeconds('2.5')).toBeNull();
+    expect(parseIntervalSeconds('abc')).toBeNull();
   });
 });

@@ -35,9 +35,36 @@
       }).addTo(map);
 
       const markerLayer = L.layerGroup().addTo(map);
+      let liveMarker = null;
       let line = L.polyline([], { color: '#1f5f4a', weight: 5, opacity: 0.85 }).addTo(map);
 
       window.GPSTracer = {
+        setLiveLocation(location, shouldFollow) {
+          if (!location) {
+            if (liveMarker) {
+              map.removeLayer(liveMarker);
+              liveMarker = null;
+            }
+            return;
+          }
+          const latLng = [location.latitude, location.longitude];
+          if (!liveMarker) {
+            liveMarker = L.circleMarker(latLng, {
+              radius: 9,
+              color: '#ffffff',
+              weight: 3,
+              fillColor: '#1f8f75',
+              fillOpacity: 1,
+            }).addTo(map);
+          } else {
+            liveMarker.setLatLng(latLng);
+          }
+          if (!line.getLatLngs().length) {
+            map.setView(latLng, 17);
+          } else if (shouldFollow) {
+            map.panTo(latLng, { animate: true });
+          }
+        },
         setPoints(points) {
           markerLayer.clearLayers();
           line.setLatLngs([]);
@@ -51,8 +78,6 @@
           line.setLatLngs(latLngs);
           if (latLngs.length === 1) {
             map.setView(latLngs[0], 17);
-          } else if (latLngs.length > 1) {
-            map.fitBounds(L.latLngBounds(latLngs), { padding: [36, 36], maxZoom: 18 });
           }
         },
       };

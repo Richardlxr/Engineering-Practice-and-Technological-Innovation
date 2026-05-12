@@ -43,7 +43,7 @@ export function HomeScreen() {
           </View>
         </View>
       )}
-      <MapView points={tracking.currentPoints} liveLocation={tracking.liveLocation} />
+      <MapView points={tracking.currentPoints} liveLocation={tracking.liveLocation} isTracking={tracking.isTracking} />
       <ControlBar
         isReady={tracking.isReady}
         isTracking={tracking.isTracking}
