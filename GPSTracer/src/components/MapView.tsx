@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import type { WebView as WebViewType } from 'react-native-webview';
 import type { LiveLocation, RecordPoint } from '../types';
@@ -13,6 +13,8 @@ type Props = {
 
 export function MapView({ points, liveLocation, isTracking }: Props) {
   const ref = useRef<WebViewType>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const payload = JSON.stringify(
@@ -33,15 +35,32 @@ export function MapView({ points, liveLocation, isTracking }: Props) {
   return (
     <View style={styles.wrap}>
       <WebView
+        key={reloadKey}
         ref={ref}
         originWhitelist={['*']}
-        source={{ html: MAP_HTML, baseUrl: 'https://localhost/' }}
+        source={{ html: MAP_HTML }}
         javaScriptEnabled
         domStorageEnabled
         allowFileAccess={false}
         mixedContentMode="always"
+        onLoadEnd={() => setLoadError(false)}
+        onError={() => setLoadError(true)}
         style={styles.webview}
       />
+      {loadError && (
+        <View style={styles.errorOverlay}>
+          <Text style={styles.errorTitle}>地图加载失败</Text>
+          <Pressable
+            style={styles.retryButton}
+            onPress={() => {
+              setLoadError(false);
+              setReloadKey((value) => value + 1);
+            }}
+          >
+            <Text style={styles.retryText}>重试地图</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -56,5 +75,34 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  errorOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    backgroundColor: '#dce7df',
+  },
+  errorTitle: {
+    color: '#17342a',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  retryButton: {
+    minWidth: 120,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    backgroundColor: '#1f5f4a',
+  },
+  retryText: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '800',
   },
 });
